@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+<head>
+<title>Breakout</title>
+</head>
+<body>
+<canvas id="canvas" width="300" height="300"></canvas>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="lib.js"></script>
+<script>
+
+function draw() {
+    ctx.fillStyle = backcolor;
+    clear();
+    ctx.fillStyle = ballcolor
+    circle(x, y, ballr);
+
+    // move the paddle if left or right is currently pressed
+    if(rightDown && paddlex < canvasMaxX-paddlew) {
+        paddlex += 5;
+    } else if(leftDown && paddlex > canvasMinX) {
+        paddlex -=5;
+    }
+    ctx.fillStyle = paddlecolor;
+    rect(paddlex, HEIGHT-paddleh, paddlew, paddleh);
+
+    draw_bricks();
+
+    // brick collision detection
+    rowHeight = BRICKHEIGHT + PADDING;
+    colWidth = BRICKWIDTH + PADDING;
+    row = Math.floor(y/rowHeight);
+    col = Math.floor(x/colWidth);
+    // reverse the ball on collision and mark the brick broken
+    if(y < NROWS*rowHeight && row >= 0 && col >= 0 && bricks[row][col] == 1) {
+        dy = -dy;
+        bricks[row][col] = 0;
+    }
+
+    // horizontal bounce
+    if(x + dx > WIDTH || x + dx < 0) {
+        dx = -dx
+    }
+
+    // vertical bounce
+    if(y + dx > HEIGHT || y + dy < 0) {
+        dy = -dy;
+    } else if (y + dy > HEIGHT) {
+        // bounce on paddle
+        if(x > paddlex && x < paddlex + paddlew) {
+            // move the ball differently based on where it hit the paddle
+            dx = 8 * ((x - (paddlex + paddlew / 2)) / paddlew);
+            dy = -dy;
+        } else {
+            // game over, stop animation
+            clearInterval(intervalId);
+        }
+    }
+
+    x += dx;
+    y += dy;
+}
+
+init();
+init_bricks();
+
+</script>
+</body>
+</html>
